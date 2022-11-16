@@ -81,9 +81,9 @@ func Setup(attrNo int, pairing pbc.Pairing, msp *MSP, fileName string) error {
 	defer fSetup.Close()
 
 	var fH *os.File
-	fmt.Fprintf(fG, "%B\n", g)
-	fmt.Fprintf(fPub, "%B\n", pubKey)
-	fmt.Fprintf(fGA, "%B\n", gA)
+	fmt.Fprintf(fG, "%s\n", g)
+	fmt.Fprintf(fPub, "%s\n", pubKey)
+	fmt.Fprintf(fGA, "%s\n", gA)
 	fmt.Fprintf(fSetup, "%s\r\n", setupTime)
 	var count int = 0
 	hCmd := make([]byte, 0, 100) //the command line for the pointer of FILE* fH
@@ -103,7 +103,7 @@ func Setup(attrNo int, pairing pbc.Pairing, msp *MSP, fileName string) error {
 			return err
 		}
 		h.Rand()
-		fmt.Fprintf(fH, "%B", h)
+		fmt.Fprintf(fH, "%s", h)
 		hCmd = append(hCmd[:0], hCmd[(len(hCmd)):]...) //清空buffer
 		hCmd = append(hCmd, "publicKey/h"...)
 		fH.Close()

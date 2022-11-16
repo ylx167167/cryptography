@@ -69,14 +69,14 @@ func KeyGen(pairing pbc.Pairing, attrNo int, attribute []byte, userName string) 
 
 	t.Rand()
 	L.PowZn(g, t)
-	fmt.Fprintf(fL, "%B", L)
+	fmt.Fprintf(fL, "%s", L)
 	temp.PowZn(gA, t) //first K = g^at
 	K.Mul(temp, msk)  //second K = K*g^alpha
-	fmt.Fprintf(fK, "%B", K)
+	fmt.Fprintf(fK, "%s", K)
 	for i := 0; i < attrNo; i++ {
 		Kx.Set0()
 		Kx.PowZn(&h[i], t)           //Kx = hx^t
-		fmt.Fprintf(fKx, "%B\n", Kx) //Kx = hx^t
+		fmt.Fprintf(fKx, "%s\n", Kx) //Kx = hx^t
 	}
 
 }
