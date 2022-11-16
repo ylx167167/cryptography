@@ -10,6 +10,7 @@ import (
 
 func GeneratePrime() {
 	// params := pbc(160, 512)
+	//test
 }
 
 func SetupSingularPairing() *pbc.Pairing {
