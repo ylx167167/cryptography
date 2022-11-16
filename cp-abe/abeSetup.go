@@ -10,7 +10,6 @@ import (
 
 func GeneratePrime() {
 	// params := pbc(160, 512)
-	//test
 }
 
 func SetupSingularPairing() *pbc.Pairing {
@@ -18,7 +17,6 @@ func SetupSingularPairing() *pbc.Pairing {
 	var qbits uint32 = 1624
 	params := pbc.GenerateA(rbits, qbits)
 	pairing := params.NewPairing()
-	pairing := params.NewPairing()1
 	return pairing
 }
 
