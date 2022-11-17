@@ -15,8 +15,32 @@ func GeneratePrime() {
 func SetupSingularPairing() *pbc.Pairing {
 	var rbits uint32 = 256
 	var qbits uint32 = 1624
+	fPrime, err := os.OpenFile("prime.data", os.O_RDWR, 0777)
+	if err == nil {
+		pairing, err := pbc.NewPairingFromReader(fPrime)
+		//如果创建失败 则重新创建
+		if err != nil {
+			params := pbc.GenerateA(rbits, qbits)
+			pairing := params.NewPairing()
+			// FILE *fPrime = fopen("prime.data","w");//the group order of prime p
+			fPrime, err = os.OpenFile("prime.data", os.O_RDWR|os.O_CREATE, 0777)
+			if err != nil {
+				fmt.Printf("open file failure\r\n")
+			}
+			params.WriteTo(fPrime)
+			return pairing
+		}
+		return pairing
+
+	}
 	params := pbc.GenerateA(rbits, qbits)
 	pairing := params.NewPairing()
+	// FILE *fPrime = fopen("prime.data","w");//the group order of prime p
+	fPrime, err = os.OpenFile("prime.data", os.O_RDWR|os.O_CREATE, 0777)
+	if err != nil {
+		fmt.Printf("open file failure\r\n")
+	}
+	params.WriteTo(fPrime)
 	return pairing
 }
 
@@ -25,12 +49,13 @@ func SetupOrdinaryPairing() *pbc.Pairing {
 	var qbits uint32 = 3248
 	params := pbc.GenerateE(rbits, qbits)
 	pairing := params.NewPairing()
+
 	return pairing
 }
 
 // int attrNo,pairing_t *pairing, MSP *msp
 func Setup(attrNo int, pairing pbc.Pairing, msp *MSP, fileName string) error {
-	fSetup, err := os.OpenFile(fileName, os.O_WRONLY, 0)
+	fSetup, err := os.OpenFile(fileName, os.O_WRONLY, 0777)
 	if err != nil {
 		fmt.Printf("Open file failure!")
 		return err
@@ -66,10 +91,10 @@ func Setup(attrNo int, pairing pbc.Pairing, msp *MSP, fileName string) error {
 	msk := pairing.NewG2()
 	msk.Set(gAlpha) //msk = g^alpha
 	//write the master key and public key to file
-	fG, err1 := os.OpenFile("publicKey/g.key", os.O_RDWR, 0)
-	fGA, err2 := os.OpenFile("publicKey/gA.key", os.O_RDWR, 0)
-	fPub, err3 := os.OpenFile("publicKey/eGG.key", os.O_RDWR, 0)
-	fMsk, err := os.OpenFile("MSK/msk.key", os.O_RDWR, 0)
+	fG, err1 := os.OpenFile("publicKey/g.key", os.O_RDWR|os.O_CREATE, 0777)
+	fGA, err2 := os.OpenFile("publicKey/gA.key", os.O_RDWR|os.O_CREATE, 0777)
+	fPub, err3 := os.OpenFile("publicKey/eGG.key", os.O_RDWR|os.O_CREATE, 0777)
+	fMsk, err := os.OpenFile("MSK/msk.key", os.O_RDWR|os.O_CREATE, 0777)
 	if err != nil || err1 != nil || err2 != nil || err3 != nil {
 		fmt.Printf("Open file failure!")
 		return err
@@ -79,24 +104,25 @@ func Setup(attrNo int, pairing pbc.Pairing, msp *MSP, fileName string) error {
 	defer fPub.Close()
 	defer fMsk.Close()
 	defer fSetup.Close()
-
 	var fH *os.File
 	fmt.Fprintf(fG, "%s\n", g)
 	fmt.Fprintf(fPub, "%s\n", pubKey)
 	fmt.Fprintf(fGA, "%s\n", gA)
+	fmt.Fprintf(fMsk, "%s\n", msk)
 	fmt.Fprintf(fSetup, "%s\r\n", setupTime)
 	var count int = 0
 	hCmd := make([]byte, 0, 100) //the command line for the pointer of FILE* fH
 	var attrName string          //the name of attribute
 	hCmd = append(hCmd, "publicKey/h"...)
+
 	for {
-		if count != attrNo {
+		if count == attrNo {
 			break //如果count!=attrNo则退出
 		}
 		attrName = fmt.Sprintf("%c", msp.Label[count])
 		hCmd = append(hCmd, attrName...)
 		hCmd = append(hCmd, ".key"...)
-		fH, err = os.OpenFile(string(hCmd), os.O_WRONLY, 0)
+		fH, err = os.OpenFile(string(hCmd), os.O_WRONLY|os.O_CREATE, 0777)
 		if err != nil {
 			fH.Close()
 			fmt.Printf("Open file failure!")

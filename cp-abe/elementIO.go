@@ -27,3 +27,39 @@ func Element_fread_line(fp *os.File, e *pbc.Element, base int) {
 	fp.ReadAt(tempAll, 2048) //fgets
 	e.SetString(string(tempAll), base)
 }
+
+func User_fread(filename string) (int, []int, [][]byte, [][]byte) {
+	fUser, err := os.OpenFile(filename, os.O_RDONLY, 0777)
+	if err != nil {
+		fmt.Printf("open file failure\n")
+	}
+	var userNo int
+	fmt.Fscanf(fUser, "%d\n", &userNo)
+	attrNo := make([]int, userNo)
+	userName := make([][]byte, userNo)
+	attribute := make([][]byte, userNo)
+	for i := range userName {
+		userName[i] = make([]byte, 100) //姓名不能超过100个字符
+	}
+	var j int = 0
+	var k int = 0
+	for i := 0; i < userNo; i++ {
+		fmt.Fscanf(fUser, "%s", &userName[i])
+		fmt.Print(userNo, " :", string(userName[i]))
+		fmt.Fscanf(fUser, "%d\n", &attrNo[i])
+		fmt.Print("", attrNo[i])
+		attribute[i] = make([]byte, attrNo[i])
+		j = 0
+		k = attrNo[i]
+		for {
+			if k == 0 {
+				break
+			}
+			fmt.Fscanf(fUser, "%c\n", &attribute[i][j])
+			j++
+			k--
+		}
+		fmt.Printf("\n")
+	}
+	return userNo, attrNo, userName, attribute
+}

@@ -8,9 +8,9 @@ import (
 )
 
 func KeyGen(pairing pbc.Pairing, attrNo int, attribute []byte, userName string) {
-	fMsk, err1 := os.OpenFile("MSK/msk.key", os.O_RDWR, 0)    //fMsk to read the master key
-	fG, err2 := os.OpenFile("publicKey/g.key", os.O_RDWR, 0)  //fG to read the public key -genterator g
-	fGA, err := os.OpenFile("publicKey/gA.key", os.O_RDWR, 0) //fGA to read the public key -gA
+	fMsk, err1 := os.OpenFile("MSK/msk.key", os.O_RDWR|os.O_CREATE, 0777)    //fMsk to read the master key
+	fG, err2 := os.OpenFile("publicKey/g.key", os.O_RDWR|os.O_CREATE, 0777)  //fG to read the public key -genterator g
+	fGA, err := os.OpenFile("publicKey/gA.key", os.O_RDWR|os.O_CREATE, 0777) //fGA to read the public key -gA
 	if err != nil || err2 != nil || err1 != nil {
 		fmt.Print("os.OpenFile failure")
 	}
@@ -33,12 +33,15 @@ func KeyGen(pairing pbc.Pairing, attrNo int, attribute []byte, userName string) 
 		attrName = fmt.Sprintf("%c", attribute[i])
 		hCmd = append(hCmd, []byte(attrName)...)
 		hCmd = append(hCmd, ".key"...)
-		fH, err = os.OpenFile(string(hCmd), os.O_RDWR, 0)
+		fmt.Print(string(hCmd), "\n")
+		fH, err = os.OpenFile(string(hCmd), os.O_RDWR|os.O_CREATE, 0777)
 		if err != nil {
-			fmt.Print("os.OpenFile failure")
+			fmt.Print("os.OpenFile failure\n")
 		}
 		h[i] = *pairing.NewG2()
 		Element_fread(fH, "%s %s\n", &h[i], 10)
+
+		hCmd = append(hCmd[:0], hCmd[(len(hCmd)):]...) //清空buffer
 		fH.Close()
 	}
 
@@ -57,9 +60,9 @@ func KeyGen(pairing pbc.Pairing, attrNo int, attribute []byte, userName string) 
 	fileK = append(fileK, "/K.key"...)
 	fileKx = append(fileKx, []byte(userName)...)
 	fileKx = append(fileKx, "/Kx.key"...)
-	fL, err := os.OpenFile(string(fileL), os.O_RDWR, 0)    //fL to write the privateKey L
-	fK, err1 := os.OpenFile(string(fileK), os.O_RDWR, 0)   //fK to write the privateKey K
-	fKx, err2 := os.OpenFile(string(fileKx), os.O_RDWR, 0) //fKx to write the privateKey Kx
+	fL, err := os.OpenFile(string(fileL), os.O_RDWR|os.O_CREATE, 0777)    //fL to write the privateKey L
+	fK, err1 := os.OpenFile(string(fileK), os.O_RDWR|os.O_CREATE, 0777)   //fK to write the privateKey K
+	fKx, err2 := os.OpenFile(string(fileKx), os.O_RDWR|os.O_CREATE, 0777) //fKx to write the privateKey Kx
 	if err != nil || err2 != nil || err1 != nil {
 		fmt.Print("os.OpenFile failure")
 	}
