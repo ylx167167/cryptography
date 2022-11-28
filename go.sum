@@ -1,2 +1,4 @@
 github.com/Nik-U/pbc v0.0.0-20181205041846-3e516ca0c5d6 h1:GU/vL5sj0IgGYEOIIAJ1HDI9dgqT0gJXkhXINri7Otc=
 github.com/Nik-U/pbc v0.0.0-20181205041846-3e516ca0c5d6/go.mod h1:Zt2U1SemYWNGXqS1fDiZC7u74nsJTAnWK5WVgvI8OAs=
+github.com/obscuren/ecies v0.0.0-20150213224233-7c0f4a9b18d9 h1:Q9JlyQu2TEEvmDnbiwhTis7qt3jpOt8spfuyaO6+vDw=
+github.com/obscuren/ecies v0.0.0-20150213224233-7c0f4a9b18d9/go.mod h1:Pxvzt51U7dqynm0OJwBLWHPfHygNVxGrxXE8AS16xf0=
