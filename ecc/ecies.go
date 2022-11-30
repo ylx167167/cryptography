@@ -2,27 +2,31 @@ package ecc
 
 import (
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
-	"encoding/hex"
 
 	"github.com/obscuren/ecies"
 )
 
-func GenerateeciesKey(pri *ecdsa.PrivateKey) (*ecies.PrivateKey, *ecies.PublicKey) {
+func GenerateKeyECIES() (*ecies.PrivateKey, *ecies.PublicKey, error) {
+	privateKey, err := ecies.GenerateKey(rand.Reader, elliptic.P256(), ecies.ParamsFromCurve(elliptic.P256()))
+	if err != nil {
+		return nil, nil, err
+	}
+	return privateKey, &privateKey.PublicKey, nil
+}
+
+func GenerateeciesPri(pri *ecdsa.PrivateKey) (*ecies.PrivateKey, *ecies.PublicKey) {
 	eciesPri := ecies.ImportECDSA(pri)
 	eciesPub := &eciesPri.PublicKey
 	return eciesPri, eciesPub
 }
 
-func Encrypt_ecies(message string, eciesPublicKey *ecies.PublicKey) string {
-	cipherBytes, _ := ecies.Encrypt(rand.Reader, eciesPublicKey, []byte(message), nil, nil)
-	cipherString := hex.EncodeToString(cipherBytes)
-	return cipherString
-}
-
-func Decrypt_ecies(message string, eciesPrivateKey *ecies.PrivateKey) string {
-	bytes, _ := hex.DecodeString(message)
-	decrypeMessageBytes, _ := eciesPrivateKey.Decrypt(rand.Reader, bytes, nil, nil)
-	decrypeMessageString := string(decrypeMessageBytes[:])
-	return decrypeMessageString
+func GenerateciesPub(pub *ecdsa.PublicKey) *ecies.PublicKey {
+	return &ecies.PublicKey{
+		X:      pub.X,
+		Y:      pub.Y,
+		Curve:  pub.Curve,
+		Params: ecies.ParamsFromCurve(pub.Curve),
+	}
 }

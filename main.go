@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/ecdsa"
+	"crypto/sha256"
 	"fmt"
 
 	cpabe "github.com/ylx167167/cryptography/cp-abe"
@@ -11,6 +13,8 @@ func main() {
 
 	// test7()
 	test8()
+	// test9("test")
+	// test10()
 }
 func test5() {
 	pairing := cpabe.SetupSingularPairing()
@@ -40,7 +44,7 @@ func test7() {
 	fmt.Print("\n")
 	fmt.Print(apub)
 
-	a, b := ecc.GenerateeciesKey(apri)
+	a, b := ecc.GenerateeciesPri(apri)
 	fmt.Print("\n")
 	fmt.Print(a)
 	fmt.Print("\n")
@@ -48,11 +52,39 @@ func test7() {
 }
 
 func test8() {
-	apri, _, _ := ecc.ReadKeyPairFile("A_prikey.pem", "A_pubkey.pem")
-	a, b := ecc.GenerateeciesKey(apri)
+	apri, apub, _ := ecc.ReadKeyPairFile("A_prikey.pem", "A_pubkey.pem")
+	// a, b := ecc.GenerateeciesPri(apri)
 	var message string = "this is a message, 这是需要加密的数据"
-	e := ecc.Encrypt_ecies(message, b)
-
-	d := ecc.Decrypt_ecies(e, a)
+	e := ecc.Encrypt(message, apub)
+	d := ecc.Decrypt(e, apri)
 	fmt.Print(d)
+}
+
+func test9(s string) {
+	// s := "test"
+	// hash := sha256.New()
+	// hash.Write([]byte(s))
+	// bs := hash.Sum(nil)
+	// fmt.Print(string(bs))
+	h := sha256.New()
+	h.Write([]byte(s))
+	fmt.Printf("%x", h.Sum(nil))
+}
+
+// 生成既能签名和加密的算法
+func test10() {
+	iespri, iespub, _ := ecc.GenerateKeyECIES()
+	var dsapub ecdsa.PublicKey = ecdsa.PublicKey{
+		X:     iespub.X,
+		Y:     iespri.Y,
+		Curve: iespub.Curve,
+	}
+	var dsapri ecdsa.PrivateKey = ecdsa.PrivateKey{
+		PublicKey: dsapub,
+		D:         iespri.D,
+	}
+	message := "test"
+	signature, _ := ecc.Sign(&dsapri, message)
+	T, _ := ecc.Verify(message, signature, &dsapub)
+	fmt.Print(T)
 }
